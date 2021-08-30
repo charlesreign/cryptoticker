@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'coin_data.dart';
 import 'dart:io' show Platform;
+import 'network.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
+  String btcPrice;
 
   DropdownButton<String> androidDropDown() {
     List<DropdownMenuItem<String>> dropDownItems = [];
@@ -42,6 +44,19 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
+  void getCryptoPrice() async {
+    var getApiData = await NetworkAdapter().getCryptoData();
+    setState(() {
+      btcPrice = getApiData['rate'].toStringAsFixed(2);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCryptoPrice();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +78,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = $btcPrice',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
@@ -78,7 +93,8 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.center,
             padding: EdgeInsets.only(bottom: 30.0),
             color: Colors.lightBlue,
-            child: Platform.isIOS ? iOSDropDown() : androidDropDown(),
+            //child: Platform.isIOS ? iOSDropDown() : androidDropDown(),
+            child: iOSDropDown(),
           ),
         ],
       ),
