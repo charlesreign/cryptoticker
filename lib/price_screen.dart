@@ -11,7 +11,7 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
-  String btcPrice;
+  String btcPrice = '...';
 
   DropdownButton<String> androidDropDown() {
     List<DropdownMenuItem<String>> dropDownItems = [];
@@ -38,27 +38,34 @@ class _PriceScreenState extends State<PriceScreen> {
     return CupertinoPicker(
       itemExtent: 32.0,
       onSelectedItemChanged: (itemID) {
-        print(itemID);
+        setState(() {
+          selectedCurrency = currenciesList[itemID];
+        });
       },
       children: pickerItems,
     );
   }
 
+  //this method makes a call to the network.dart and get result from the
+  //getCryptoData method and get the result of the rate from the return object.
   void getCryptoPrice() async {
-    var getApiData = await NetworkAdapter().getCryptoData();
+    var getApiData = await NetworkAdapter().getCryptoData(selectedCurrency);
     setState(() {
       btcPrice = getApiData['rate'].toStringAsFixed(2);
     });
   }
 
+  //this method executes as soon as you open the app
   @override
   void initState() {
     super.initState();
     getCryptoPrice();
   }
 
+  //the build method executes anytime there is a change in th UI
   @override
   Widget build(BuildContext context) {
+    getCryptoPrice();
     return Scaffold(
       appBar: AppBar(
         title: Text('🤑 Coin Ticker'),
@@ -78,7 +85,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = $btcPrice',
+                  '1 BTC = $btcPrice $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
