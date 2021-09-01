@@ -11,7 +11,10 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
-  String btcPrice = '...';
+  String btcPrice = '?';
+  String ethPrice = '?';
+  String ltcPrice = '?';
+  String currencyPrice;
 
   DropdownButton<String> androidDropDown() {
     List<DropdownMenuItem<String>> dropDownItems = [];
@@ -46,12 +49,45 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
+  //this populate the children view in the column with items from cryptoCardView
+  List<Text> textList(String cryptoPrice, String currency) {
+    List<Text> list = [];
+    for (var cryptoType in cryptoList) {
+      if (cryptoType == 'BTC') {
+        cryptoPrice = btcPrice;
+      } else if (cryptoType == 'ETH') {
+        cryptoPrice = ethPrice;
+      } else {
+        cryptoPrice = ltcPrice;
+      }
+      list.add(cryptoCardView(cryptoType, cryptoPrice, currency));
+    }
+    return list;
+  }
+
+  //This List the items in the column
+  Text cryptoCardView(String cryptoType, String cryptoPrice, String currency) {
+    return Text(
+      '1 $cryptoType = $cryptoPrice $currency',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 20.0,
+        color: Colors.white,
+      ),
+    );
+    
+  }
+
   //this method makes a call to the network.dart and get result from the
   //getCryptoData method and get the result of the rate from the return object.
   void getCryptoPrice() async {
     var getApiData = await NetworkAdapter().getCryptoData(selectedCurrency);
+    var getETHData = await NetworkAdapter().getETHData(selectedCurrency);
+    var getLTCData = await NetworkAdapter().getLTCData(selectedCurrency);
     setState(() {
       btcPrice = getApiData['rate'].toStringAsFixed(2);
+      ethPrice = getETHData['rate'].toStringAsFixed(2);
+      ltcPrice = getLTCData['rate'].toStringAsFixed(2);
     });
   }
 
@@ -68,7 +104,7 @@ class _PriceScreenState extends State<PriceScreen> {
     getCryptoPrice();
     return Scaffold(
       appBar: AppBar(
-        title: Text('🤑 Coin Ticker'),
+        title: Text('🤑 Crypto Ticker'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -84,13 +120,8 @@ class _PriceScreenState extends State<PriceScreen> {
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $btcPrice $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
+                child: Column(
+                  children: textList(currencyPrice, selectedCurrency),
                 ),
               ),
             ),
