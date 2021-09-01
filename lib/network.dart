@@ -1,7 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const apiKey = '8D9C326A-9B59-4FE8-AC34-84B3F22D0307';
+//get the api key from coinapi.io
+const apiKey = '';
 
 class NetworkAdapter {
   Future <dynamic> getCryptoData(currency) async {
